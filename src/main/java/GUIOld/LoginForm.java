@@ -1,4 +1,7 @@
-package konferencje;
+package GUIOld;
+import konferencje.HOME_JFrame;
+import konferencje.Konferencje;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
