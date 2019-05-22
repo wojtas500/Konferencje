@@ -9,17 +9,13 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 public class LoginForm
 {
@@ -51,20 +47,21 @@ public class LoginForm
     private JButton WsteczButton1;
     private JButton ZałóżKontoButton;
     private JTextField SignUpPesel;
-    private JTextField SignUpAddress;
-    private JTextField SignUpInterests;
-    private JPasswordField SignUpRepeadPassword;
+    private JTextField SignUpStreetAddress;
+    private JPasswordField SignUpRepeatPassword;
+    private JTextField SignUpPostCode;
+    private JTextField SignUpTown;
 
-    private static final Pattern emailRegEx = Pattern.compile("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}");
-    private static final Pattern loginRegEx = Pattern.compile("[0-9a-zA-Z]{8,25}");
-    private static final Pattern passwordRegEx = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,25}$");
-    private static final Pattern nameRegEx = Pattern.compile("^[A-Z]+[a-z]{2,}");
-    private static final Pattern peselRegEx = Pattern.compile("[0-9]{11}");
     private static final Object[] confirmOptions = {"     Tak     ","     Nie     "};
 
-    private static final int StartScreenHeight = 420;
-    private static final int LogInHeight = 420;
-    private static final int SignInHeight = 600;
+    private static final int WindowWidth = 350;
+    private static final int StartScreenHeight = 405;
+    private static final int LogInHeight = 405;
+    private static final int SignInHeight = 610;
+    private final Color defaultTextColor = SignUpLogin.getForeground();
+
+    final Selector selector = new Selector();
+    final QueryHandler queryHandler = new QueryHandler();
 
     MessageDigest digest = null;
     final Logger logger = LogManager.getLogger(LoginForm.class);
@@ -80,6 +77,8 @@ public class LoginForm
             e.printStackTrace();
         }
 
+        System.out.println("Default color: " + defaultTextColor);
+
         Cards.add(StartScreen, "StartScreen");
         Cards.add(LogIn, "LogIn");
         Cards.add(SignIn, "SignIn");
@@ -87,9 +86,7 @@ public class LoginForm
         cards = (CardLayout) (Cards.getLayout());
         cards.show(Cards, "StartScreen");
 
-        final Selector selector = new Selector();
-        final QueryHandler queryHandler = new QueryHandler();
-        CurrentUser.Values = null;
+    //    CurrentUser.Values = null;
 
         try
         {
@@ -114,7 +111,7 @@ public class LoginForm
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                frame.setSize(340, LogInHeight);
+                frame.setSize(WindowWidth, LogInHeight);
                 frame.setTitle("Zaloguj się");
                 cards.show(Cards, "LogIn");
                 LogInEmail.requestFocus();
@@ -126,7 +123,7 @@ public class LoginForm
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                frame.setSize(340, SignInHeight);
+                frame.setSize(WindowWidth, SignInHeight);
                 frame.setTitle("Zarejestruj się");
                 cards.show(Cards, "SignIn");
                 SignUpEmail.requestFocus();
@@ -163,15 +160,15 @@ public class LoginForm
 
                 if (result.size() == 1)
                 {
-                    CurrentUser.Values = result.get(0);
-                    System.out.println("logged succesfully as: " + CurrentUser.Values.get(6));
-                    //new MainWindow().createWindow();
-                    logger.trace("User " + CurrentUser.Values.get(6) + " logged");
+                    CurrentUser.setValues(result.get(0));
+                    System.out.println("logged succesfully as: " + CurrentUser.getLogin());
+                    logger.trace("User " + CurrentUser.getLogin() + " logged");
 
-                    JOptionPane.showMessageDialog(frame,"Zalogowano jako " + CurrentUser.Values.get(6),"Operacja pomyślna", JOptionPane.INFORMATION_MESSAGE);
+                //    JOptionPane.showMessageDialog(frame,"Zalogowano jako " + CurrentUser.Values.get(6),"Operacja pomyślna", JOptionPane.INFORMATION_MESSAGE);
 
+                    new MainWindow().createWindow();
                     frame.dispose();
-                    System.exit(0);
+                //    System.exit(0);
                 }
                 else
                 {
@@ -194,7 +191,7 @@ public class LoginForm
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                frame.setSize(340, StartScreenHeight);
+                frame.setSize(WindowWidth, StartScreenHeight);
                 frame.setTitle("Zaloguj lub zarejestruj się");
                 cards.show(Cards, "StartScreen");
                 logInButton.requestFocus();
@@ -202,6 +199,171 @@ public class LoginForm
         });
 
         // SignIn //
+
+        SignUpLogin.setToolTipText("Login musi składać się z cyfr oraz małych i wielkich liter i mieć 8-25 znaków.");
+        SignUpPassword.setToolTipText("Hasło musi zawierać co najmniej jedną cyfrę, jedną wielką i jedną małą literę i mieć 8-25 znaków.");
+        SignUpRepeatPassword.setToolTipText("Wpisz hasło identyczne z tym w polu \"Hasło\"");
+        SignUpPostCode.setToolTipText("dd-ddd gdzie \"d\" oznacza cyfrę");
+
+        SignUpLogin.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(RegexContainer.loginRegEx.matcher(SignUpLogin.getText()).matches())
+                    SignUpLogin.setForeground(defaultTextColor);
+                else
+                    SignUpLogin.setForeground(Color.red);
+            }
+        });
+
+        SignUpPassword.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(RegexContainer.passwordRegEx.matcher(String.valueOf(SignUpPassword.getPassword())).matches())
+                    SignUpPassword.setForeground(defaultTextColor);
+                else
+                    SignUpPassword.setForeground(Color.red);
+            }
+        });
+
+        SignUpRepeatPassword.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(String.valueOf(SignUpPassword.getPassword()).equals(String.valueOf(SignUpRepeatPassword.getPassword())))
+                    SignUpRepeatPassword.setForeground(defaultTextColor);
+                else
+                    SignUpRepeatPassword.setForeground(Color.red);
+            }
+        });
+
+        SignUpName.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(RegexContainer.nameRegEx.matcher(SignUpName.getText()).matches())
+                    SignUpName.setForeground(defaultTextColor);
+                else
+                    SignUpName.setForeground(Color.red);
+            }
+        });
+
+        SignUpSurname.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(RegexContainer.nameRegEx.matcher(SignUpSurname.getText()).matches())
+                    SignUpSurname.setForeground(defaultTextColor);
+                else
+                    SignUpSurname.setForeground(Color.red);
+            }
+        });
+
+        SignUpEmail.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(RegexContainer.emailRegEx.matcher(SignUpEmail.getText()).matches())
+                    SignUpEmail.setForeground(defaultTextColor);
+                else
+                    SignUpEmail.setForeground(Color.red);
+            }
+        });
+
+        SignUpPesel.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(RegexContainer.peselRegEx.matcher(SignUpPesel.getText()).matches())
+                    SignUpPesel.setForeground(defaultTextColor);
+                else
+                    SignUpPesel.setForeground(Color.red);
+            }
+        });
+
+        SignUpStreetAddress.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(RegexContainer.streetAdressRegEx.matcher(SignUpStreetAddress.getText()).matches())
+                    SignUpStreetAddress.setForeground(defaultTextColor);
+                else
+                    SignUpStreetAddress.setForeground(Color.red);
+            }
+        });
+
+        SignUpPostCode.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(RegexContainer.postCodeRegEx.matcher(SignUpPostCode.getText()).matches())
+                    SignUpPostCode.setForeground(defaultTextColor);
+                else
+                    SignUpPostCode.setForeground(Color.red);
+            }
+        });
+
+        SignUpTown.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(RegexContainer.townRegEx.matcher(SignUpTown.getText()).matches())
+                    SignUpTown.setForeground(defaultTextColor);
+                else
+                    SignUpTown.setForeground(Color.red);
+            }
+        });
 
         ZałóżKontoButton.addActionListener(new ActionListener()
         {
@@ -215,7 +377,7 @@ public class LoginForm
                 boolean errors = false;
                 String errormessage = "";
 
-                if(!loginRegEx.matcher(SignUpLogin.getText()).matches())        // check login
+                if(!RegexContainer.loginRegEx.matcher(SignUpLogin.getText()).matches())        // check login
                 {
                     errors = true;
                     errormessage+="Login nieprawidłowy!\n" +
@@ -223,19 +385,21 @@ public class LoginForm
                         "- składać się z cyfr oraz małych i wielkich liter\n" +
                         "- mieć 8-25 znaków.\n\n";
                 }
-
-                for(ArrayList<String> iter : Logins)
+                else
                 {
-                    String Login = SignUpLogin.getText();
-                    if(iter.get(0).equalsIgnoreCase(Login))
+                    for(ArrayList<String> iter : Logins)
                     {
-                        errors = true;
-                        errormessage+="Login jest już zajęty!\n\n";
-                        break;
+                        String Login = SignUpLogin.getText();
+                        if(iter.get(0).equalsIgnoreCase(Login))
+                        {
+                            errors = true;
+                            errormessage+="Login jest już zajęty!\n\n";
+                            break;
+                        }
                     }
                 }
 
-                if(!passwordRegEx.matcher(String.valueOf(SignUpPassword.getPassword())).matches())      // check password
+                if(!RegexContainer.passwordRegEx.matcher(String.valueOf(SignUpPassword.getPassword())).matches())      // check password
                 {
                     errors = true;
                     errormessage+="Hasło nieprawidłowe!\n" +
@@ -245,60 +409,82 @@ public class LoginForm
                 }
                 else
                 {
-                    if (!String.valueOf(SignUpPassword.getPassword()).equals(String.valueOf(SignUpRepeadPassword.getPassword())))    // check repeat password
+                    if (!String.valueOf(SignUpPassword.getPassword()).equals(String.valueOf(SignUpRepeatPassword.getPassword())))    // check repeat password
                     {
                         errors = true;
                         errormessage += "Hasła się nie zgadzają!\n\n";
                     }
                 }
 
-                if(!nameRegEx.matcher(SignUpName.getText()).matches())      // check name
+                if(!RegexContainer.nameRegEx.matcher(SignUpName.getText()).matches())      // check name
                 {
                     errors = true;
                     errormessage+="Imię jest nieprawidłowe!\n\n";
                 }
 
-                if(!nameRegEx.matcher(SignUpSurname.getText()).matches())   // check surname
+                if(!RegexContainer.nameRegEx.matcher(SignUpSurname.getText()).matches())   // check surname
                 {
                     errors = true;
                     errormessage+="Nazwisko jest nieprawidłowe!\n\n";
                 }
 
-                if(!emailRegEx.matcher(SignUpEmail.getText()).matches())    // check email
+                if(!RegexContainer.emailRegEx.matcher(SignUpEmail.getText()).matches())    // check email
                 {
                     errors = true;
                     errormessage+="Email jest nieprawidłowy!\n\n";
                 }
-
-                for(ArrayList<String> iter : Emails)
+                else
                 {
-                    String Email = SignUpEmail.getText();
-                    if (iter.get(0).equalsIgnoreCase(Email))
+                    for(ArrayList<String> iter : Emails)
                     {
-                        errors = true;
-                        errormessage+="Email jest już zajęty!\n\n";
-                        break;
+                        String Email = SignUpEmail.getText();
+                        if (iter.get(0).equalsIgnoreCase(Email))
+                        {
+                            errors = true;
+                            errormessage+="Email jest już zajęty!\n\n";
+                            break;
+                        }
                     }
                 }
 
-                if(SignUpPesel.getText().length()!=0 && !peselRegEx.matcher(SignUpPesel.getText()).matches())   // check surname
+                if(SignUpPesel.getText().length()!=0 && !RegexContainer.peselRegEx.matcher(SignUpPesel.getText()).matches())   // check pesel
                 {
                     errors = true;
                     errormessage+="Pesel jest nieprawidłowy!\n\n";
                 }
-
-                if(SignUpPesel.getText().length()!=0)
+                else
                 {
-                    for (ArrayList<String> iter : Pesels)
+                    if(SignUpPesel.getText().length()!=0)
                     {
-                        String Pesel = SignUpPesel.getText();
-                        if (iter.get(0)!=null && iter.get(0).equals(Pesel))
+                        for (ArrayList<String> iter : Pesels)
                         {
-                            errors = true;
-                            errormessage+="Pesel jest już zajęty!\n\n";
-                            break;
+                            String Pesel = SignUpPesel.getText();
+                            if (iter.get(0)!=null && iter.get(0).equals(Pesel))
+                            {
+                                errors = true;
+                                errormessage+="Pesel jest już zajęty!\n\n";
+                                break;
+                            }
                         }
                     }
+                }
+
+                if(SignUpStreetAddress.getText().length()!=0  && !RegexContainer.streetAdressRegEx.matcher(SignUpStreetAddress.getText()).matches())
+                {
+                    errors = true;
+                    errormessage+="Adres jest nieprawidłowy!\n\n";
+                }
+
+                if(SignUpPostCode.getText().length()!=0 && !RegexContainer.postCodeRegEx.matcher(SignUpPostCode.getText()).matches())
+                {
+                    errors = true;
+                    errormessage+="Kod pocztowy jest nieprawidłowy!\n\n";
+                }
+
+                if(SignUpTown.getText().length()!=0     && !RegexContainer.townRegEx.matcher(SignUpTown.getText()) .matches())
+                {
+                    errors = true;
+                    errormessage+="Miejscowość jest nieprawidłowa!\n\n";
                 }
 
                 if(errors)
@@ -316,33 +502,37 @@ public class LoginForm
                     String surname = SignUpSurname.getText();
                     String email = SignUpEmail.getText();
 
-                    queryHandler.execute("INSERT INTO SysUser (name, surname, email, login, passwd) VALUES " +
-                            "('" + name + "', '" + surname + "', '" + email + "', '" + login + "', '" + SHApassword + "');");
+                    queryHandler.execute("INSERT INTO SysUser (login, passwd, name, surname, email) VALUES " +
+                            "('" + login + "', '" + SHApassword + "', '" + name + "', '" + surname + "', '" + email + "');");
 
                     if(SignUpPesel.getText().length()!=0)
                         queryHandler.execute("UPDATE SysUser SET pesel = " + SignUpPesel.getText() + " WHERE login = '" + login + "';");
 
-                    if(SignUpAddress.getText().length()!=0)
-                        queryHandler.execute("UPDATE SysUser SET address = '" + SignUpAddress.getText() + "' WHERE login = '" + login + "';");
+                    if(SignUpStreetAddress.getText().length()!=0)
+                        queryHandler.execute("UPDATE SysUser SET streetaddress = '" + SignUpStreetAddress.getText() + "' WHERE login = '" + login + "';");
 
-                    if(SignUpInterests.getText().length()!=0)
-                        queryHandler.execute("UPDATE SysUser SET interests = '" + SignUpInterests.getText() + "' WHERE login = '" + login + "';");
+                    if(SignUpPostCode.getText().length()!=0) {
+                        queryHandler.execute("UPDATE SysUser SET PostCode = " + SignUpPostCode.getText() + " WHERE login = '" + login + "';");
+                        System.out.println("UPDATE SysUser SET PostCode = '" + SignUpPostCode.getText() + "' WHERE login = '" + login + "';");
+                    }
+
+                    if(SignUpTown.getText().length()!=0)
+                        queryHandler.execute("UPDATE SysUser SET town = '" + SignUpTown.getText() + "' WHERE login = '" + login + "';");
 
                     JOptionPane.showMessageDialog(frame, "Dodano nowego użytownika!", "Operacja Pomyślna", JOptionPane.PLAIN_MESSAGE);
+                    logger.trace("Created new user " + login);
 
                     SignUpLogin.setText("");
                     SignUpPassword.setText("");
-                    SignUpRepeadPassword.setText("");
+                    SignUpRepeatPassword.setText("");
                     SignUpName.setText("");
                     SignUpSurname.setText("");
                     SignUpEmail.setText("");
                     SignUpPesel.setText("");
-                    SignUpAddress.setText("");
-                    SignUpInterests.setText("");
+                    SignUpStreetAddress.setText("");
+                    SignUpStreetAddress.setText("");
 
-                    logger.trace("Created new user " + login);
-
-                    frame.setSize(340, StartScreenHeight);
+                    frame.setSize(WindowWidth, StartScreenHeight);
                     frame.setTitle("Zaloguj lub zarejestruj się");
                     cards.show(Cards, "StartScreen");
                     logInButton.requestFocus();
@@ -355,7 +545,7 @@ public class LoginForm
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                frame.setSize(340, StartScreenHeight);
+                frame.setSize(WindowWidth, StartScreenHeight);
                 frame.setTitle("Zaloguj lub zarejestruj się");
                 cards.show(Cards, "StartScreen");
                 logInButton.requestFocus();
@@ -370,7 +560,7 @@ public class LoginForm
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
-        frame.setSize(340, StartScreenHeight);
+        frame.setSize(WindowWidth, StartScreenHeight);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
 
