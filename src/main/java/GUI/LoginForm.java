@@ -19,7 +19,8 @@ import java.util.ArrayList;
 
 public class LoginForm
 {
-    private static JFrame frame;
+    static JFrame frame;
+
     private JPanel MainPanel;
     private JPanel Cards;
     private CardLayout cards;
@@ -28,14 +29,14 @@ public class LoginForm
     private JLabel ImageConference;
     private JButton logInButton;
     private JButton signInButton;
-    private JButton WyjdźButton;
+    private JButton ExitButton;
 
     private JPanel LogIn;
     private JLabel ImageKey;
     private JTextField LogInEmail;
     private JPasswordField LogInPassword;
-    private JButton WsteczButton;
-    private JButton ZalogujSieButton;
+    private JButton BackButton;
+    private JButton LogInButton;
 
     private JPanel SignIn;
     private JLabel ImageAdd;
@@ -44,8 +45,8 @@ public class LoginForm
     private JTextField SignUpEmail;
     private JTextField SignUpLogin;
     private JPasswordField SignUpPassword;
-    private JButton WsteczButton1;
-    private JButton ZałóżKontoButton;
+    private JButton BackButton1;
+    private JButton SignUpButton;
     private JTextField SignUpPesel;
     private JTextField SignUpStreetAddress;
     private JPasswordField SignUpRepeatPassword;
@@ -68,16 +69,12 @@ public class LoginForm
 
     public LoginForm()
     {
-        try
-        {
+        try{
             digest = MessageDigest.getInstance("MD5");
         }
-        catch (NoSuchAlgorithmException e)
-        {
+        catch (NoSuchAlgorithmException e){
             e.printStackTrace();
         }
-
-        System.out.println("Default color: " + defaultTextColor);
 
         Cards.add(StartScreen, "StartScreen");
         Cards.add(LogIn, "LogIn");
@@ -85,8 +82,6 @@ public class LoginForm
 
         cards = (CardLayout) (Cards.getLayout());
         cards.show(Cards, "StartScreen");
-
-    //    CurrentUser.Values = null;
 
         try
         {
@@ -102,7 +97,7 @@ public class LoginForm
             System.exit(1);
         }
 
-            logger.trace("Connected to Database");
+        logger.trace("Connected to Database");
 
         //// StartScreen ////
 
@@ -130,7 +125,7 @@ public class LoginForm
             }
         });
 
-        WyjdźButton.addActionListener(new ActionListener()
+        ExitButton.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -146,7 +141,7 @@ public class LoginForm
 
         //// LogIn ////
 
-        ZalogujSieButton.addActionListener(new ActionListener()
+        LogInButton.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -161,14 +156,11 @@ public class LoginForm
                 if (result.size() == 1)
                 {
                     CurrentUser.setValues(result.get(0));
-                    System.out.println("logged succesfully as: " + CurrentUser.getLogin());
                     logger.trace("User " + CurrentUser.getLogin() + " logged");
 
-                //    JOptionPane.showMessageDialog(frame,"Zalogowano jako " + CurrentUser.Values.get(6),"Operacja pomyślna", JOptionPane.INFORMATION_MESSAGE);
-
-                    new MainWindow().createWindow();
+                    MainWindow mainWindow = new MainWindow();
+                    mainWindow.createWindow(frame);
                     frame.dispose();
-                //    System.exit(0);
                 }
                 else
                 {
@@ -186,7 +178,7 @@ public class LoginForm
             }
         });
 
-        WsteczButton.addActionListener(new ActionListener()
+        ActionListener BackButtonListener = new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -196,7 +188,9 @@ public class LoginForm
                 cards.show(Cards, "StartScreen");
                 logInButton.requestFocus();
             }
-        });
+        };
+
+        BackButton.addActionListener(BackButtonListener);
 
         // SignIn //
 
@@ -365,7 +359,7 @@ public class LoginForm
             }
         });
 
-        ZałóżKontoButton.addActionListener(new ActionListener()
+        SignUpButton.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -511,10 +505,9 @@ public class LoginForm
                     if(SignUpStreetAddress.getText().length()!=0)
                         queryHandler.execute("UPDATE SysUser SET streetaddress = '" + SignUpStreetAddress.getText() + "' WHERE login = '" + login + "';");
 
-                    if(SignUpPostCode.getText().length()!=0) {
-                        queryHandler.execute("UPDATE SysUser SET PostCode = " + SignUpPostCode.getText() + " WHERE login = '" + login + "';");
-                        System.out.println("UPDATE SysUser SET PostCode = '" + SignUpPostCode.getText() + "' WHERE login = '" + login + "';");
-                    }
+                    if(SignUpPostCode.getText().length()!=0)
+                        queryHandler.execute("UPDATE SysUser SET PostCode = " + SignUpPostCode.getText() + " WHERE login = '" + login + "';");  // error: interpretuje kod jako odemowanie
+
 
                     if(SignUpTown.getText().length()!=0)
                         queryHandler.execute("UPDATE SysUser SET town = '" + SignUpTown.getText() + "' WHERE login = '" + login + "';");
@@ -540,20 +533,10 @@ public class LoginForm
             }
         });
 
-        WsteczButton1.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                frame.setSize(WindowWidth, StartScreenHeight);
-                frame.setTitle("Zaloguj lub zarejestruj się");
-                cards.show(Cards, "StartScreen");
-                logInButton.requestFocus();
-            }
-        });
+        BackButton1.addActionListener(BackButtonListener);
     }
 
-    void createWindow()
+    void createWindow(JFrame parentFrame)
     {
         frame = new JFrame("Zaloguj lub zarejestruj się");
         frame.setContentPane(this.MainPanel);
@@ -562,7 +545,7 @@ public class LoginForm
         frame.setVisible(true);
         frame.setSize(WindowWidth, StartScreenHeight);
         frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
+        frame.setLocationRelativeTo(parentFrame);
 
         frame.addWindowListener(new WindowAdapter()
         {

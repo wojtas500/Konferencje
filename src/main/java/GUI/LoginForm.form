@@ -51,7 +51,7 @@
                       <text value="Zarejestruj się"/>
                     </properties>
                   </component>
-                  <component id="713ad" class="javax.swing.JButton" binding="WyjdźButton">
+                  <component id="713ad" class="javax.swing.JButton" binding="ExitButton">
                     <constraints>
                       <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -139,7 +139,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="a595d" class="javax.swing.JButton" binding="WsteczButton" default-binding="true">
+                  <component id="a595d" class="javax.swing.JButton" binding="BackButton">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -147,7 +147,7 @@
                       <text value="Wstecz"/>
                     </properties>
                   </component>
-                  <component id="19891" class="javax.swing.JButton" binding="ZalogujSieButton" default-binding="true">
+                  <component id="19891" class="javax.swing.JButton" binding="LogInButton">
                     <constraints>
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -363,7 +363,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="545cc" class="javax.swing.JButton" binding="WsteczButton1" default-binding="true">
+                  <component id="545cc" class="javax.swing.JButton" binding="BackButton1">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
                         <minimum-size width="150" height="-1"/>
@@ -376,7 +376,7 @@
                       <text value="Wstecz"/>
                     </properties>
                   </component>
-                  <component id="20466" class="javax.swing.JButton" binding="ZałóżKontoButton" default-binding="true">
+                  <component id="20466" class="javax.swing.JButton" binding="SignUpButton">
                     <constraints>
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
                         <minimum-size width="150" height="-1"/>
