@@ -18,48 +18,28 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-public class MyAccountPanel
+class MyAccountPanel
 {
-    private static JFrame frame;
+    private JFrame frame;
 
-    private JLabel currLogin;
-    private JLabel currName;
-    private JLabel currSurname;
-    private JLabel currEmail;
-    private JLabel currPesel;
-    private JLabel currStreetAddress;
-    private JLabel currPostCode;
-    private JLabel currTown;
-
-    private JTextField newLogin;
-    private JTextField newName;
-    private JTextField newSurname;
-    private JTextField newEmail;
-    private JTextField newPesel;
-    private JTextField newStreetAddress;
-    private JTextField newPostCode;
-    private JTextField newTown;
-    private JPasswordField newPassword;
-    private JPasswordField newPasswordRepeat;
-    private JPasswordField oldPasswordField;
+    private JLabel currLogin, currName, currSurname, currEmail, currPesel, currStreetAddress, currPostCode, currTown;
+    private JTextField newLogin, newName, newSurname, newEmail, newPesel, newStreetAddress, newPostCode, newTown;
+    private JPasswordField newPassword, newPasswordRepeat, oldPasswordField;
     private JButton changeDataButton;
-    private JLabel warningsLabel;
-    private JButton removeAccountButton;
     private JPasswordField confirmDelete;
 
-    private Color defaultTextColor;
     private MessageDigest digest;
 
+    KeyListener newLoginListener, newNameListener, newSurnameListener, newEmailListener, newPeselListener,
+                newStreetAddressListener, newPostCodeListener, newTownListener;
+
     private final Logger logger = LogManager.getLogger(MainWindow.class);
-    private final Selector selector = new Selector();
-    private final QueryHandler queryHandler = new QueryHandler();
 
     private static final Object[] confirmOptions = {"     Tak     ","     Nie     "};
 
-    public MyAccountPanel(JFrame frame, JLabel currLogin, JLabel currName, JLabel currSurname, JLabel currEmail, JLabel currPesel, JLabel currStreetAddress, JLabel currPostCode, JLabel currTown,
+    MyAccountPanel(JFrame frame, JLabel currLogin, JLabel currName, JLabel currSurname, JLabel currEmail, JLabel currPesel, JLabel currStreetAddress, JLabel currPostCode, JLabel currTown,
                           JTextField newLogin, JTextField newName, JTextField newSurname, JTextField newEmail, JTextField newPesel, JTextField newStreetAddress, JTextField newPostCode,
-                          JTextField newTown, JPasswordField newPassword, JPasswordField newPasswordRepeat, JPasswordField oldPasswordField, JButton changeDataButton, JLabel warningsLabel,
-                          JButton removeAccountButton, JPasswordField confirmDelete, Color defaultTextColor)
+                          JTextField newTown, JPasswordField newPassword, JPasswordField newPasswordRepeat, JPasswordField oldPasswordField, JButton changeDataButton, JPasswordField confirmDelete)
     {
         try
         {
@@ -92,13 +72,19 @@ public class MyAccountPanel
         this.newPasswordRepeat = newPasswordRepeat;
         this.oldPasswordField = oldPasswordField;
         this.changeDataButton = changeDataButton;
-        this.defaultTextColor = defaultTextColor;
-        this.warningsLabel = warningsLabel;
-        this.removeAccountButton = removeAccountButton;
         this.confirmDelete = confirmDelete;
+
+        this.newLoginListener = new RegexKeyListener(RegexContainer.loginRegEx, newLogin);
+        this.newNameListener = new RegexKeyListener(RegexContainer.nameRegEx, newName);
+        this.newSurnameListener = new RegexKeyListener(RegexContainer.nameRegEx, newSurname);
+        this.newEmailListener = new RegexKeyListener(RegexContainer.emailRegEx, newEmail);
+        this.newPeselListener = new RegexKeyListener(RegexContainer.peselRegEx, newPesel);
+        this.newStreetAddressListener = new RegexKeyListener(RegexContainer.streetAdressRegEx, newStreetAddress);
+        this.newPostCodeListener = new RegexKeyListener(RegexContainer.postCodeRegEx, newPostCode);
+        this.newTownListener = new RegexKeyListener(RegexContainer.townRegEx, newTown);
     }
 
-    public void CheckEnableChangeData()
+    private void CheckEnableChangeData()
     {
         if(newLogin.getText().isEmpty() && newName.getText().isEmpty() && newSurname.getText().isEmpty()
                 && newEmail.getText().isEmpty() && newPesel.getText().isEmpty() && newStreetAddress.getText().isEmpty()
@@ -116,12 +102,12 @@ public class MyAccountPanel
         }
     }
 
-    private class RegExKeyListener implements KeyListener // broken
+    private class RegexKeyListener implements KeyListener
     {
         private JTextField textField;
         private Pattern pattern;
 
-        public RegExKeyListener(Pattern pattern, JTextField textField)
+        RegexKeyListener(Pattern pattern, JTextField textField)
         {
             this.pattern = pattern;
             this.textField = textField;
@@ -135,149 +121,13 @@ public class MyAccountPanel
         @Override
         public void keyReleased(KeyEvent e)
         {
-            if(pattern.matcher(textField.getText()).matches())  // error:  textField is null despite setting
+            if(pattern.matcher(textField.getText()).matches())
                 textField.setForeground(Color.black);
             else
                 textField.setForeground(Color.red);
             CheckEnableChangeData();
         }
     }
-
-    KeyListener newLoginListener = new KeyListener()
-    {
-        @Override
-        public void keyTyped(KeyEvent e) {}
-        @Override
-        public void keyPressed(KeyEvent e) {}
-        @Override
-        public void keyReleased(KeyEvent e)
-        {
-            if(RegexContainer.loginRegEx.matcher(newLogin.getText()).matches())
-                newLogin.setForeground(Color.black);
-            else
-                newLogin.setForeground(Color.red);
-            CheckEnableChangeData();
-        }
-    };
-    
-    KeyListener newNameListener = new KeyListener()
-    {
-        @Override
-        public void keyTyped(KeyEvent e) {}
-        @Override
-        public void keyPressed(KeyEvent e) {}
-        @Override
-        public void keyReleased(KeyEvent e)
-        {
-            if(RegexContainer.nameRegEx.matcher(newName.getText()).matches())
-                newName.setForeground(defaultTextColor);
-            else
-                newName.setForeground(Color.red);
-            CheckEnableChangeData();
-        }
-    };
-
-    KeyListener newSurnameListener = new KeyListener()
-    {
-        @Override
-        public void keyTyped(KeyEvent e) {}
-        @Override
-        public void keyPressed(KeyEvent e) {}
-        @Override
-        public void keyReleased(KeyEvent e)
-        {
-            if(RegexContainer.nameRegEx.matcher(newSurname.getText()).matches())
-                newSurname.setForeground(defaultTextColor);
-            else
-                newSurname.setForeground(Color.red);
-            CheckEnableChangeData();
-        }
-    };
-
-    KeyListener newEmailListener = new KeyListener()
-    {
-        @Override
-        public void keyTyped(KeyEvent e) {}
-        @Override
-        public void keyPressed(KeyEvent e) {}
-        @Override
-        public void keyReleased(KeyEvent e)
-        {
-            if(RegexContainer.emailRegEx.matcher(newEmail.getText()).matches())
-                newEmail.setForeground(defaultTextColor);
-            else
-                newEmail.setForeground(Color.red);
-            CheckEnableChangeData();
-        }
-    };
-
-    KeyListener newPeselListener = new KeyListener()
-    {
-        @Override
-        public void keyTyped(KeyEvent e) {}
-        @Override
-        public void keyPressed(KeyEvent e) {}
-        @Override
-        public void keyReleased(KeyEvent e)
-        {
-            if(RegexContainer.peselRegEx.matcher(newPesel.getText()).matches())
-                newPesel.setForeground(defaultTextColor);
-            else
-                newPesel.setForeground(Color.red);
-            CheckEnableChangeData();
-        }
-    };
-
-    KeyListener newStreetAddressListener = new KeyListener()
-    {
-        @Override
-        public void keyTyped(KeyEvent e) {}
-        @Override
-        public void keyPressed(KeyEvent e) {}
-        @Override
-        public void keyReleased(KeyEvent e)
-        {
-            if(RegexContainer.streetAdressRegEx.matcher(newStreetAddress.getText()).matches())
-                newStreetAddress.setForeground(defaultTextColor);
-            else
-                newStreetAddress.setForeground(Color.red);
-            CheckEnableChangeData();
-        }
-    };
-
-    KeyListener newPostCodeListener = new KeyListener()
-    {
-        @Override
-        public void keyTyped(KeyEvent e) {}
-        @Override
-        public void keyPressed(KeyEvent e) {}
-        @Override
-        public void keyReleased(KeyEvent e)
-        {
-            if(RegexContainer.postCodeRegEx.matcher(newPostCode.getText()).matches())
-                newPostCode.setForeground(defaultTextColor);
-            else
-                newPostCode.setForeground(Color.red);
-            CheckEnableChangeData();
-        }
-    };
-
-    KeyListener newTownListener = new KeyListener()
-    {
-        @Override
-        public void keyTyped(KeyEvent e) {}
-        @Override
-        public void keyPressed(KeyEvent e) {}
-        @Override
-        public void keyReleased(KeyEvent e)
-        {
-            if(RegexContainer.townRegEx.matcher(newTown.getText()).matches())
-                newTown.setForeground(defaultTextColor);
-            else
-                newTown.setForeground(Color.red);
-            CheckEnableChangeData();
-        }
-    };
 
     KeyListener newPasswordListener = new KeyListener()
     {
@@ -289,12 +139,12 @@ public class MyAccountPanel
         public void keyReleased(KeyEvent e)
         {
             if(RegexContainer.passwordRegEx.matcher(String.valueOf(newPassword.getPassword())).matches())
-                newPassword.setForeground(defaultTextColor);
+                newPassword.setForeground(Color.black);
             else
                 newPassword.setForeground(Color.red);
 
             if(String.valueOf(newPassword.getPassword()).equals(String.valueOf(newPasswordRepeat.getPassword())))
-                newPasswordRepeat.setForeground(defaultTextColor);
+                newPasswordRepeat.setForeground(Color.black);
             else
                 newPasswordRepeat.setForeground(Color.red);
 
@@ -312,7 +162,7 @@ public class MyAccountPanel
         public void keyReleased(KeyEvent e)
         {
             if(String.valueOf(newPassword.getPassword()).equals(String.valueOf(newPasswordRepeat.getPassword())))
-                newPasswordRepeat.setForeground(defaultTextColor);
+                newPasswordRepeat.setForeground(Color.black);
             else
                 newPasswordRepeat.setForeground(Color.red);
             CheckEnableChangeData();
@@ -334,9 +184,9 @@ public class MyAccountPanel
             }
             else
             {
-                ArrayList<ArrayList<String>> Emails = selector.select("SELECT email FROM sysuser");
-                ArrayList<ArrayList<String>> Logins = selector.select("SELECT login FROM sysuser");
-                ArrayList<ArrayList<String>> Pesels = selector.select("SELECT pesel FROM sysuser");
+                ArrayList<ArrayList<String>> Emails = Selector.select("SELECT email FROM sysuser");
+                ArrayList<ArrayList<String>> Logins = Selector.select("SELECT login FROM sysuser");
+                ArrayList<ArrayList<String>> Pesels = Selector.select("SELECT pesel FROM sysuser");
 
                 String message = "";
 
@@ -366,7 +216,7 @@ public class MyAccountPanel
                         if(!repeated)
                         {
                             String oldLogin = CurrentUser.getLogin();
-                            queryHandler.execute("UPDATE sysuser SET login = '" + newLogin.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
+                            QueryHandler.execute("UPDATE sysuser SET login = '" + newLogin.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
                             CurrentUser.setLogin(newLogin.getText());
                             logger.trace(oldLogin + " changed login to " + CurrentUser.getLogin());
                             message+="Login został zmieniony!\n\n";
@@ -381,7 +231,7 @@ public class MyAccountPanel
                         message+="<html><font color=#ff0000>Imię jest nieprawidłowe!</font>\n\n";
                     else
                     {
-                        queryHandler.execute("UPDATE sysuser SET name = '" + newName.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
+                        QueryHandler.execute("UPDATE sysuser SET name = '" + newName.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
                         logger.trace(CurrentUser.getLogin() + " changed name");
                         message+="Imię zostało zmienione!\n\n";
                         newName.setText("");
@@ -394,7 +244,7 @@ public class MyAccountPanel
                         message+="<html><font color=#ff0000>Nazwisko jest nieprawidłowe!</font>\n\n";
                     else
                     {
-                        queryHandler.execute("UPDATE sysuser SET surname = '" + newSurname.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
+                        QueryHandler.execute("UPDATE sysuser SET surname = '" + newSurname.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
                         logger.trace(CurrentUser.getLogin() + " changed surname");
                         message+="Nazwisko zostało zmienione!\n\n";
                         newSurname.setText("");
@@ -421,7 +271,7 @@ public class MyAccountPanel
 
                         if(!repeated)
                         {
-                            queryHandler.execute("UPDATE sysuser SET email = '" + newEmail.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
+                            QueryHandler.execute("UPDATE sysuser SET email = '" + newEmail.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
                             logger.trace(CurrentUser.getLogin() + " changed email");
                             message+="email został zmieniony!\n\n";
                             newEmail.setText("");
@@ -451,7 +301,7 @@ public class MyAccountPanel
 
                             if(!repeated)
                             {
-                                queryHandler.execute("UPDATE sysuser SET pesel = '" + newPesel.getText() + "' WHERE userID = '" + CurrentUser.getID()+ "';");
+                                QueryHandler.execute("UPDATE sysuser SET pesel = '" + newPesel.getText() + "' WHERE userID = '" + CurrentUser.getID()+ "';");
                                 logger.trace(CurrentUser.getLogin() + " changed pesel");
                                 message+="pesel został zmieniony!\n\n";
                                 newPesel.setText("");
@@ -466,7 +316,7 @@ public class MyAccountPanel
                         message+="<html><font color=#ff0000>Adres jest nieprawidłowy!</font>\n\n";
                     else
                     {
-                        queryHandler.execute("UPDATE sysuser SET streetAddress = '" + newStreetAddress.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
+                        QueryHandler.execute("UPDATE sysuser SET streetAddress = '" + newStreetAddress.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
                         logger.trace(CurrentUser.getLogin() + " changed streetAdress");
                         message+="Adres został zmieniony!\n\n";
                         newStreetAddress.setText("");
@@ -479,7 +329,7 @@ public class MyAccountPanel
                         message+="<html><font color=#ff0000>Kod pocztowy jest nieprawidłowy!</font>\n\n";
                     else
                     {
-                        queryHandler.execute("UPDATE sysuser SET PostCode = '" + newPostCode.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
+                        QueryHandler.execute("UPDATE sysuser SET PostCode = '" + newPostCode.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
                         logger.trace(CurrentUser.getLogin() + " changed streetAdress");
                         message+="Kod pocztowy zmieniony!\n\n";
                         newPostCode.setText("");
@@ -492,7 +342,7 @@ public class MyAccountPanel
                         message+="<html><font color=#ff0000>Miejscowość jest nieprawidłowa!</font>\n\n";
                     else
                     {
-                        queryHandler.execute("UPDATE sysuser SET town = '" + newTown.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
+                        QueryHandler.execute("UPDATE sysuser SET town = '" + newTown.getText() + "' WHERE userID = '" + CurrentUser.getID() + "';");
                         logger.trace(CurrentUser.getLogin() + " changed town");
                         message+="Miejscowość została zmieniona!\n\n";
                         newTown.setText("");
@@ -517,7 +367,7 @@ public class MyAccountPanel
                             String newPass = String.valueOf(newPassword.getPassword());
                             String SHAnewPass = String.format("%032x", new BigInteger(1, digest.digest(newPass.getBytes(StandardCharsets.UTF_8))));
 
-                            queryHandler.execute("UPDATE sysuser SET passwd = '" + SHAnewPass + "' WHERE userID = '" + CurrentUser.getID() + "';");
+                            QueryHandler.execute("UPDATE sysuser SET passwd = '" + SHAnewPass + "' WHERE userID = '" + CurrentUser.getID() + "';");
                             CurrentUser.setPasswordHash(SHAnewPass);
                             logger.trace(CurrentUser.getLogin() + " changed password");
                             message+="Hasło zostało zmienione!\n\n";
@@ -527,7 +377,7 @@ public class MyAccountPanel
                     }
                 }
 
-                ArrayList<ArrayList<String>> result = selector.select("SELECT * FROM SysUser WHERE userID = '" + CurrentUser.getID() + "';");
+                ArrayList<ArrayList<String>> result = Selector.select("SELECT * FROM SysUser WHERE userID = '" + CurrentUser.getID() + "';");
                 CurrentUser.setValues(result.get(0));
 
                 currLogin.setText(CurrentUser.getLogin());
@@ -580,13 +430,12 @@ public class MyAccountPanel
                         JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
                 {
                     logger.trace("User " + CurrentUser.getLogin() + " removed account");
-                    queryHandler.execute("DELETE FROM sysuser where userID='"+ CurrentUser.getID() +"';");
-                    JOptionPane.showMessageDialog(frame, "Twoje konto zostało usunięte.", "Operacja przebiegła pomyślnie", JOptionPane.PLAIN_MESSAGE);
+                    QueryHandler.execute("DELETE FROM sysuser where userID='"+ CurrentUser.getID() +"';");
                     CurrentUser.setValues(null);
 
-                    //  frame.dispose();    // frame jest nullem, nie wiadomo czemu
-                    //new LoginForm().createWindow(null);
-                    System.exit(0); // tegov finalnie ma nie być
+                    new LoginForm(frame);
+                    frame.dispose();
+                    JOptionPane.showMessageDialog(frame, "Twoje konto zostało usunięte.", "Operacja przebiegła pomyślnie", JOptionPane.PLAIN_MESSAGE);
                 }
                 else confirmDelete.setText("");
             }

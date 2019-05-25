@@ -20,7 +20,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="4c18d" class="javax.swing.JButton" binding="mojeKontoButton" default-binding="true">
+          <component id="4c18d" class="javax.swing.JButton" binding="myAccountButton">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -29,7 +29,7 @@
               <text value="Moje konto"/>
             </properties>
           </component>
-          <component id="64be1" class="javax.swing.JButton" binding="mojeArtykułyButton">
+          <component id="64be1" class="javax.swing.JButton" binding="myArticlesButton">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -38,7 +38,7 @@
               <text value="Moje artykuły"/>
             </properties>
           </component>
-          <component id="749d5" class="javax.swing.JButton" binding="mojeRecenzjeButton" default-binding="true">
+          <component id="749d5" class="javax.swing.JButton" binding="myReviewsButton">
             <constraints>
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -47,7 +47,7 @@
               <text value="Moje recenzje"/>
             </properties>
           </component>
-          <component id="f34c7" class="javax.swing.JButton" binding="zarządzajUzytkownikamiButton" default-binding="true">
+          <component id="f34c7" class="javax.swing.JButton" binding="manageUsersButton">
             <constraints>
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
