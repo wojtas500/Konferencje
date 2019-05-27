@@ -6,9 +6,10 @@ import java.sql.Statement;
 
 public class QueryHandler
 {
-    public void execute(String query)
+    public static void execute(String query)
     {
-        Statement stmt = null;
+        //System.out.println(query);
+        Statement stmt;
         try
         {
             Connection connection = DBConnection.GetInstance().getConnection();

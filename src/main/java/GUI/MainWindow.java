@@ -1,80 +1,39 @@
 package GUI;
 
-import SQLhandling.QueryHandler;
 import SQLhandling.Selector;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class MainWindow
 {
     private JFrame frame;
-
-    private JPanel MyAccountPanel;
-    private JPanel MyReviewsPanel;
-    private JPanel MyArticlesPanel;
-    private JPanel ManageUsersPanel;
-
-    private JButton mojeKontoButton;
-    private JButton mojeArtykułyButton;
-    private JButton mojeRecenzjeButton;
-    private JButton zarządzajUzytkownikamiButton;
-    private JButton wylogujButton;
-    private JPanel SidePanel;
-    private JPanel Cards;
+    private JPanel MainPanel, SidePanel, Cards, MyAccountPanel, MyReviewsPanel, MyArticlesPanel, ManageUsersPanel;
+    private JButton myAccountButton, myArticlesButton, myReviewsButton, manageUsersButton, wylogujButton;
     private JSeparator Separator;
 
-    private JPanel MainPanel;
-
-    MyAccountPanel myAccountPanel;  // MyAccount controls
-
-    private JLabel currLogin;
-    private JLabel currName;
-    private JLabel currSurname;
-    private JLabel currEmail;
-    private JLabel currPesel;
-    private JLabel currStreetAddress;
-    private JLabel currPostCode;
-    private JLabel currTown;
-
-    private JTextField newLogin;
-    private JTextField newName;
-    private JTextField newSurname;
-    private JTextField newEmail;
-    private JTextField newPesel;
-    private JTextField newStreetAddress;
-    private JTextField newPostCode;
-    private JTextField newTown;
-    private JPasswordField newPassword;
-    private JPasswordField newPasswordRepeat;
-    private JPasswordField oldPasswordField;
+    private JLabel currLogin, currName, currSurname, currEmail, currPesel, currStreetAddress, currPostCode, currTown;
+    private JTextField newLogin, newName, newSurname, newEmail, newPesel, newStreetAddress, newPostCode, newTown;
+    private JPasswordField newPassword, newPasswordRepeat, oldPasswordField;
     private JButton changeDataButton;
 
     private JLabel warningsLabel;
     private JButton removeAccountButton;
     private JPasswordField confirmDelete;
 
-    private final Color defaultTextColor = newLogin.getForeground();
-
     private static final Object[] confirmOptions = {"     Tak     ","     Nie     "};
-
     private final Logger logger = LogManager.getLogger(MainWindow.class);
-    private final Selector selector = new Selector();
-    private final QueryHandler queryHandler = new QueryHandler();
 
     private void CheckDeletion()
     {
-        ArrayList<ArrayList<String>> articlesAsAuthor = selector.select("SELECT COUNT(articleID) FROM article where AuthorID = " + CurrentUser.getID() + ";");
-        ArrayList<ArrayList<String>> articlesAsRedactor = selector.select("SELECT COUNT(articleID) FROM article where RedactorID = " + CurrentUser.getID() + ";");
-        ArrayList<ArrayList<String>> reviews = selector.select("SELECT COUNT(reviewID) FROM review where ReviewerID = " + CurrentUser.getID() + ";");
-        ArrayList<ArrayList<String>> paths = selector.select("SELECT COUNT(pathID) FROM path where redactorID = " + CurrentUser.getID() + ";");
+        ArrayList<ArrayList<String>> articlesAsAuthor = Selector.select("SELECT COUNT(articleID) FROM article where AuthorID = " + CurrentUser.getID() + ";");
+        ArrayList<ArrayList<String>> articlesAsRedactor = Selector.select("SELECT COUNT(articleID) FROM article where RedactorID = " + CurrentUser.getID() + ";");
+        ArrayList<ArrayList<String>> reviews = Selector.select("SELECT COUNT(reviewID) FROM review where ReviewerID = " + CurrentUser.getID() + ";");
+        ArrayList<ArrayList<String>> paths = Selector.select("SELECT COUNT(pathID) FROM path where redactorID = " + CurrentUser.getID() + ";");
 
         int articlesAsAuthorCount = Integer.parseInt(articlesAsAuthor.get(0).get(0));
         int articlesAsRedactorCount = Integer.parseInt(articlesAsRedactor.get(0).get(0));
@@ -99,15 +58,15 @@ public class MainWindow
 
     private void changeActiveCard(int card, CardLayout cards)     //  0-3 (so far)
     {
-        mojeKontoButton.setEnabled(0!=card);
-        mojeArtykułyButton.setEnabled(1!=card);
-        mojeRecenzjeButton.setEnabled(2!=card);
-        zarządzajUzytkownikamiButton.setEnabled(3!=card);
+        myAccountButton.setEnabled(0!=card);
+        myArticlesButton.setEnabled(1!=card);
+        myReviewsButton.setEnabled(2!=card);
+        manageUsersButton.setEnabled(3!=card);
 
-        mojeKontoButton.setBackground( 0==card ? Color.WHITE : null );
-        mojeArtykułyButton.setBackground( 1==card ? Color.WHITE : null );
-        mojeRecenzjeButton.setBackground( 2==card ? Color.WHITE: null );
-        zarządzajUzytkownikamiButton.setBackground( 3==card ? Color.WHITE: null );
+        myAccountButton.setBackground( 0==card ? Color.WHITE : null );
+        myArticlesButton.setBackground( 1==card ? Color.WHITE : null );
+        myReviewsButton.setBackground( 2==card ? Color.WHITE: null );
+        manageUsersButton.setBackground( 3==card ? Color.WHITE: null );
 
         if(card==0) frame.setTitle("Moje konto");
         if(card==1) frame.setTitle("Moje artykuły");
@@ -120,12 +79,29 @@ public class MainWindow
         if(card==3) cards.show(Cards, "ManageUsers");
     }
 
-    public MainWindow()
+    public MainWindow(JFrame parentFrame)
     {
-        myAccountPanel = new MyAccountPanel(frame, currLogin, currName, currSurname, currEmail, currPesel, currStreetAddress, currPostCode, currTown,
-                newLogin, newName, newSurname, newEmail, newPesel, newStreetAddress, newPostCode,
-                newTown, newPassword, newPasswordRepeat, oldPasswordField, changeDataButton, warningsLabel,
-                removeAccountButton, confirmDelete, defaultTextColor);
+        frame = new JFrame("Moje konto");
+        frame.setContentPane(this.MainPanel);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setSize(800, 700);
+        frame.setLocationRelativeTo(parentFrame);
+
+        frame.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent we)
+            {
+                if(JOptionPane.showOptionDialog(frame, "Czy chcesz wyjść?", "Potwierdź operację",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
+                {
+                    logger.trace("Application closed with exit code 0");
+                    System.exit(0);
+                }
+            }
+        });
 
         Cards.add(MyAccountPanel, "MyAccountPanel");
         Cards.add(MyArticlesPanel, "MyArticles");
@@ -136,35 +112,34 @@ public class MainWindow
 
         // initial card
         cards.show(Cards, "MyAccountPanel");
-        mojeKontoButton.setEnabled(false);
-        mojeKontoButton.setBackground(Color.WHITE);
+        myAccountButton.setEnabled(false);
+        myAccountButton.setBackground(Color.WHITE);
 
-        mojeKontoButton.addActionListener(new ActionListener(){
+        myAccountButton.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e){
                 changeActiveCard(0, cards);
             }
         });
 
-        mojeArtykułyButton.addActionListener(new ActionListener(){
+        myArticlesButton.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e){
                 changeActiveCard(1, cards);
             }
         });
 
-        mojeRecenzjeButton.addActionListener(new ActionListener(){
+        myReviewsButton.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e){
                 changeActiveCard(2, cards);
             }
         });
 
-        zarządzajUzytkownikamiButton.addActionListener(new ActionListener(){
+        manageUsersButton.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e){
                 changeActiveCard(3, cards);
-                frame.setSize(1000, 700);
                 System.out.println(frame.toString());
             }
         });
@@ -179,13 +154,17 @@ public class MainWindow
                 {
                     logger.trace(CurrentUser.getLogin() + " logged out");
                     CurrentUser.setValues(null);
-                    new LoginForm().createWindow(frame);
+                    new LoginForm(frame);
                     frame.dispose();
                 }
             }
         });
 
         // MOJE KONTO
+
+        MyAccountPanel myAccountPanel = new MyAccountPanel(frame, currLogin, currName, currSurname, currEmail, currPesel, currStreetAddress, currPostCode, currTown,
+                newLogin, newName, newSurname, newEmail, newPesel, newStreetAddress, newPostCode,
+                newTown, newPassword, newPasswordRepeat, oldPasswordField, changeDataButton, confirmDelete);
 
         CheckDeletion();
         currLogin.setText(CurrentUser.getLogin());
@@ -235,30 +214,5 @@ public class MainWindow
         // ZARZĄDZANIE UŻYKOWNIKAMI
 
             // TODO
-    }
-
-    public void createWindow(JFrame parentFrame)
-    {
-        frame = new JFrame("Moje konto");
-        frame.setContentPane(this.MainPanel);
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-        frame.setSize(800, 700);
-        frame.setLocationRelativeTo(parentFrame);
-
-        frame.addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosing(WindowEvent we)
-            {
-                if(JOptionPane.showOptionDialog(frame, "Czy chcesz wyjść?", "Potwierdź operację",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
-                {
-                    logger.trace("Application closed with exit code 0");
-                    System.exit(0);
-                }
-            }
-        });
     }
 }

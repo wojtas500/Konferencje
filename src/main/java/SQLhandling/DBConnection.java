@@ -14,16 +14,13 @@ import java.util.Properties;
 
 public class DBConnection
 {
-    static final Logger logger = LogManager.getLogger(DBConnection.class);
-
+    private static DBConnection instance;
     private Connection connection;
 
     public Connection getConnection()
     {
         return connection;
     }
-
-    private static DBConnection instance;
 
     public static DBConnection GetInstance() throws SQLException
     {
@@ -34,6 +31,7 @@ public class DBConnection
 
     private DBConnection() throws SQLException
     {
+        Logger logger = LogManager.getLogger(DBConnection.class);
         Properties properties=new Properties();
 
         try // try to read from file
@@ -43,7 +41,6 @@ public class DBConnection
         catch (IOException e)   // no file exists
         {
             // log error
-            System.out.println("No configuration file found! Loading default configuration.");
             logger.warn("No configuration file found. Loading default configuration");
 
             File f = new File("dbconnection.properties");   // create new file and load default configuration
@@ -69,6 +66,5 @@ public class DBConnection
         this.connection = DriverManager.getConnection(DBURL, userName, password);
 
         logger.trace("Connection parameters loaded properly");
-    //    System.out.println("Connected to database");
     }
 }

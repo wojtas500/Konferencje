@@ -3,7 +3,6 @@ package GUI;
 import SQLhandling.DBConnection;
 import SQLhandling.QueryHandler;
 import SQLhandling.Selector;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,42 +15,31 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class LoginForm
 {
     static JFrame frame;
 
-    private JPanel MainPanel;
-    private JPanel Cards;
+    private JPanel MainPanel, Cards;
     private CardLayout cards;
 
     private JPanel StartScreen;
     private JLabel ImageConference;
-    private JButton logInButton;
-    private JButton signInButton;
-    private JButton ExitButton;
+    private JButton logInButton, signInButton, ExitButton;
 
     private JPanel LogIn;
     private JLabel ImageKey;
     private JTextField LogInEmail;
     private JPasswordField LogInPassword;
-    private JButton BackButton;
-    private JButton LogInButton;
+    private JButton BackButton, LogInButton;
 
     private JPanel SignIn;
     private JLabel ImageAdd;
-    private JTextField SignUpName;
-    private JTextField SignUpSurname;
-    private JTextField SignUpEmail;
-    private JTextField SignUpLogin;
-    private JPasswordField SignUpPassword;
-    private JButton BackButton1;
-    private JButton SignUpButton;
-    private JTextField SignUpPesel;
-    private JTextField SignUpStreetAddress;
-    private JPasswordField SignUpRepeatPassword;
-    private JTextField SignUpPostCode;
-    private JTextField SignUpTown;
+    private JTextField SignUpName, SignUpSurname, SignUpEmail, SignUpLogin,
+                       SignUpPesel, SignUpStreetAddress, SignUpPostCode, SignUpTown;
+    private JPasswordField SignUpPassword, SignUpRepeatPassword;
+    private JButton BackButton1, SignUpButton;
 
     private static final Object[] confirmOptions = {"     Tak     ","     Nie     "};
 
@@ -61,18 +49,66 @@ public class LoginForm
     private static final int SignInHeight = 610;
     private final Color defaultTextColor = SignUpLogin.getForeground();
 
-    final Selector selector = new Selector();
-    final QueryHandler queryHandler = new QueryHandler();
-
     MessageDigest digest = null;
     final Logger logger = LogManager.getLogger(LoginForm.class);
 
-    public LoginForm()
+    private class RegexKeyListener implements KeyListener // broken
     {
-        try{
+        private JTextField textField;
+        private Pattern pattern;
+
+        private RegexKeyListener(Pattern pattern, JTextField textField)
+        {
+            this.pattern = pattern;
+            this.textField = textField;
+        }
+
+        @Override
+        public void keyTyped(KeyEvent e) {}
+        @Override
+        public void keyPressed(KeyEvent e) {}
+
+        @Override
+        public void keyReleased(KeyEvent e)
+        {
+            if(pattern.matcher(textField.getText()).matches())  // error:  textField is null despite setting
+                textField.setForeground(Color.black);
+            else
+                textField.setForeground(Color.red);
+        }
+    }
+
+    public LoginForm(JFrame parentFrame)
+    {
+        frame = new JFrame("Zaloguj lub zarejestruj się");
+        frame.setContentPane(this.MainPanel);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setSize(WindowWidth, StartScreenHeight);
+        frame.setResizable(false);
+        frame.setLocationRelativeTo(parentFrame);
+
+        frame.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent we)
+            {
+                if(JOptionPane.showOptionDialog(frame, "Czy chcesz wyjść?", "Potwierdź operację",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
+                {
+                    logger.trace("Application closed with exit code 0");
+                    System.exit(0);
+                }
+            }
+        });
+
+        try
+        {
             digest = MessageDigest.getInstance("MD5");
         }
-        catch (NoSuchAlgorithmException e){
+        catch (NoSuchAlgorithmException e)
+        {
             e.printStackTrace();
         }
 
@@ -150,7 +186,7 @@ public class LoginForm
                 String password = String.valueOf(LogInPassword.getPassword());
                 String SHApassword = String.format("%032x", new BigInteger(1, digest.digest(password.getBytes(StandardCharsets.UTF_8))));
 
-                ArrayList<ArrayList<String>> result = selector.select
+                ArrayList<ArrayList<String>> result = Selector.select
                 ("SELECT * FROM SysUser " + "WHERE login = '" + login + "' and passwd = '" + SHApassword + "';");
 
                 if (result.size() == 1)
@@ -158,13 +194,12 @@ public class LoginForm
                     CurrentUser.setValues(result.get(0));
                     logger.trace("User " + CurrentUser.getLogin() + " logged");
 
-                    MainWindow mainWindow = new MainWindow();
-                    mainWindow.createWindow(frame);
+                    new MainWindow(frame);//.createWindow(frame);
                     frame.dispose();
                 }
                 else
                 {
-                    if(selector.select("SELECT * FROM SysUser WHERE login = '" + login + "';").size()==0)
+                    if(Selector.select("SELECT * FROM SysUser WHERE login = '" + login + "';").size()==0)
                     {
                         JOptionPane.showMessageDialog(frame, "Niewłaściwy login!", "Błąd", JOptionPane.PLAIN_MESSAGE);
                         logger.warn("Incorrect email provided when attempting to login: " + login);
@@ -199,21 +234,14 @@ public class LoginForm
         SignUpRepeatPassword.setToolTipText("Wpisz hasło identyczne z tym w polu \"Hasło\"");
         SignUpPostCode.setToolTipText("dd-ddd gdzie \"d\" oznacza cyfrę");
 
-        SignUpLogin.addKeyListener(new KeyListener()
-        {
-            @Override
-            public void keyTyped(KeyEvent e) {}
-            @Override
-            public void keyPressed(KeyEvent e) {}
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                if(RegexContainer.loginRegEx.matcher(SignUpLogin.getText()).matches())
-                    SignUpLogin.setForeground(defaultTextColor);
-                else
-                    SignUpLogin.setForeground(Color.red);
-            }
-        });
+        SignUpLogin.addKeyListener(new RegexKeyListener(RegexContainer.loginRegEx, SignUpLogin));
+        SignUpName.addKeyListener(new RegexKeyListener(RegexContainer.nameRegEx, SignUpName));
+        SignUpSurname.addKeyListener(new RegexKeyListener(RegexContainer.nameRegEx, SignUpSurname));
+        SignUpEmail.addKeyListener(new RegexKeyListener(RegexContainer.emailRegEx, SignUpEmail));
+        SignUpPesel.addKeyListener(new RegexKeyListener(RegexContainer.peselRegEx, SignUpPesel));
+        SignUpStreetAddress.addKeyListener(new RegexKeyListener(RegexContainer.streetAdressRegEx, SignUpStreetAddress));
+        SignUpPostCode.addKeyListener(new RegexKeyListener(RegexContainer.postCodeRegEx, SignUpPostCode));
+        SignUpTown.addKeyListener(new RegexKeyListener(RegexContainer.townRegEx, SignUpTown));
 
         SignUpPassword.addKeyListener(new KeyListener()
         {
@@ -228,6 +256,11 @@ public class LoginForm
                     SignUpPassword.setForeground(defaultTextColor);
                 else
                     SignUpPassword.setForeground(Color.red);
+
+                if(String.valueOf(SignUpPassword.getPassword()).equals(String.valueOf(SignUpRepeatPassword.getPassword())))
+                    SignUpRepeatPassword.setForeground(defaultTextColor);
+                else
+                    SignUpRepeatPassword.setForeground(Color.red);
             }
         });
 
@@ -247,126 +280,14 @@ public class LoginForm
             }
         });
 
-        SignUpName.addKeyListener(new KeyListener()
-        {
-            @Override
-            public void keyTyped(KeyEvent e) {}
-            @Override
-            public void keyPressed(KeyEvent e) {}
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                if(RegexContainer.nameRegEx.matcher(SignUpName.getText()).matches())
-                    SignUpName.setForeground(defaultTextColor);
-                else
-                    SignUpName.setForeground(Color.red);
-            }
-        });
-
-        SignUpSurname.addKeyListener(new KeyListener()
-        {
-            @Override
-            public void keyTyped(KeyEvent e) {}
-            @Override
-            public void keyPressed(KeyEvent e) {}
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                if(RegexContainer.nameRegEx.matcher(SignUpSurname.getText()).matches())
-                    SignUpSurname.setForeground(defaultTextColor);
-                else
-                    SignUpSurname.setForeground(Color.red);
-            }
-        });
-
-        SignUpEmail.addKeyListener(new KeyListener()
-        {
-            @Override
-            public void keyTyped(KeyEvent e) {}
-            @Override
-            public void keyPressed(KeyEvent e) {}
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                if(RegexContainer.emailRegEx.matcher(SignUpEmail.getText()).matches())
-                    SignUpEmail.setForeground(defaultTextColor);
-                else
-                    SignUpEmail.setForeground(Color.red);
-            }
-        });
-
-        SignUpPesel.addKeyListener(new KeyListener()
-        {
-            @Override
-            public void keyTyped(KeyEvent e) {}
-            @Override
-            public void keyPressed(KeyEvent e) {}
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                if(RegexContainer.peselRegEx.matcher(SignUpPesel.getText()).matches())
-                    SignUpPesel.setForeground(defaultTextColor);
-                else
-                    SignUpPesel.setForeground(Color.red);
-            }
-        });
-
-        SignUpStreetAddress.addKeyListener(new KeyListener()
-        {
-            @Override
-            public void keyTyped(KeyEvent e) {}
-            @Override
-            public void keyPressed(KeyEvent e) {}
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                if(RegexContainer.streetAdressRegEx.matcher(SignUpStreetAddress.getText()).matches())
-                    SignUpStreetAddress.setForeground(defaultTextColor);
-                else
-                    SignUpStreetAddress.setForeground(Color.red);
-            }
-        });
-
-        SignUpPostCode.addKeyListener(new KeyListener()
-        {
-            @Override
-            public void keyTyped(KeyEvent e) {}
-            @Override
-            public void keyPressed(KeyEvent e) {}
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                if(RegexContainer.postCodeRegEx.matcher(SignUpPostCode.getText()).matches())
-                    SignUpPostCode.setForeground(defaultTextColor);
-                else
-                    SignUpPostCode.setForeground(Color.red);
-            }
-        });
-
-        SignUpTown.addKeyListener(new KeyListener()
-        {
-            @Override
-            public void keyTyped(KeyEvent e) {}
-            @Override
-            public void keyPressed(KeyEvent e) {}
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                if(RegexContainer.townRegEx.matcher(SignUpTown.getText()).matches())
-                    SignUpTown.setForeground(defaultTextColor);
-                else
-                    SignUpTown.setForeground(Color.red);
-            }
-        });
-
         SignUpButton.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                ArrayList<ArrayList<String>> Emails = selector.select("SELECT email FROM sysuser");
-                ArrayList<ArrayList<String>> Logins = selector.select("SELECT login FROM sysuser");
-                ArrayList<ArrayList<String>> Pesels = selector.select("SELECT pesel FROM sysuser");
+                ArrayList<ArrayList<String>> Emails = Selector.select("SELECT email FROM sysuser");
+                ArrayList<ArrayList<String>> Logins = Selector.select("SELECT login FROM sysuser");
+                ArrayList<ArrayList<String>> Pesels = Selector.select("SELECT pesel FROM sysuser");
 
                 boolean errors = false;
                 String errormessage = "";
@@ -496,21 +417,20 @@ public class LoginForm
                     String surname = SignUpSurname.getText();
                     String email = SignUpEmail.getText();
 
-                    queryHandler.execute("INSERT INTO SysUser (login, passwd, name, surname, email) VALUES " +
+                    QueryHandler.execute("INSERT INTO SysUser (login, passwd, name, surname, email) VALUES " +
                             "('" + login + "', '" + SHApassword + "', '" + name + "', '" + surname + "', '" + email + "');");
 
                     if(SignUpPesel.getText().length()!=0)
-                        queryHandler.execute("UPDATE SysUser SET pesel = " + SignUpPesel.getText() + " WHERE login = '" + login + "';");
+                        QueryHandler.execute("UPDATE SysUser SET pesel = " + SignUpPesel.getText() + " WHERE login = '" + login + "';");
 
                     if(SignUpStreetAddress.getText().length()!=0)
-                        queryHandler.execute("UPDATE SysUser SET streetaddress = '" + SignUpStreetAddress.getText() + "' WHERE login = '" + login + "';");
+                        QueryHandler.execute("UPDATE SysUser SET streetaddress = '" + SignUpStreetAddress.getText() + "' WHERE login = '" + login + "';");
 
                     if(SignUpPostCode.getText().length()!=0)
-                        queryHandler.execute("UPDATE SysUser SET PostCode = " + SignUpPostCode.getText() + " WHERE login = '" + login + "';");  // error: interpretuje kod jako odemowanie
-
+                        QueryHandler.execute("UPDATE SysUser SET PostCode = '" + SignUpPostCode.getText() + "' WHERE login = '" + login + "';");
 
                     if(SignUpTown.getText().length()!=0)
-                        queryHandler.execute("UPDATE SysUser SET town = '" + SignUpTown.getText() + "' WHERE login = '" + login + "';");
+                        QueryHandler.execute("UPDATE SysUser SET town = '" + SignUpTown.getText() + "' WHERE login = '" + login + "';");
 
                     JOptionPane.showMessageDialog(frame, "Dodano nowego użytownika!", "Operacja Pomyślna", JOptionPane.PLAIN_MESSAGE);
                     logger.trace("Created new user " + login);
@@ -534,32 +454,6 @@ public class LoginForm
         });
 
         BackButton1.addActionListener(BackButtonListener);
-    }
-
-    void createWindow(JFrame parentFrame)
-    {
-        frame = new JFrame("Zaloguj lub zarejestruj się");
-        frame.setContentPane(this.MainPanel);
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-        frame.setSize(WindowWidth, StartScreenHeight);
-        frame.setResizable(false);
-        frame.setLocationRelativeTo(parentFrame);
-
-        frame.addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosing(WindowEvent we)
-            {
-                if(JOptionPane.showOptionDialog(frame, "Czy chcesz wyjść?", "Potwierdź operację",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
-                {
-                    logger.trace("Application closed with exit code 0");
-                    System.exit(0);
-                }
-            }
-        });
     }
 
     private void createUIComponents()

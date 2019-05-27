@@ -5,8 +5,9 @@ import java.util.ArrayList;
 
 public class Selector
 {
-    public ArrayList<ArrayList<String>> select(String query)
+    public static ArrayList<ArrayList<String>> select(String query)
     {
+        //System.out.println(query);
         ArrayList<ArrayList<String>> returned = new ArrayList<>();
 
         try
@@ -17,13 +18,13 @@ public class Selector
             ResultSet rs = stmt.executeQuery(query);
 
             ResultSetMetaData metadata = rs.getMetaData();
-            int numcols = metadata.getColumnCount();
+            int columnCount = metadata.getColumnCount();
 
             while (rs.next())
             {
-                ArrayList<String> row = new ArrayList<>(numcols);
+                ArrayList<String> row = new ArrayList<>(columnCount);
                 int i = 1;
-                while (i <= numcols)
+                while (i <= columnCount)
                 {
                     row.add(rs.getString(i++));
                 }
@@ -32,11 +33,9 @@ public class Selector
         }
         catch (SQLException e)
         {
+            System.out.println("Incorrect query!");
             e.printStackTrace();
         }
-        finally
-        {
-            return returned;
-        }
+        return returned;
     }
 }
