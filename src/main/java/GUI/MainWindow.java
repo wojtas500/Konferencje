@@ -1,82 +1,80 @@
 package GUI;
 
-import SQLhandling.Selector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 
 public class MainWindow
 {
     private JFrame frame;
-    private JPanel MainPanel, SidePanel, Cards, MyAccountPanel, MyReviewsPanel, MyArticlesPanel, ManageUsersPanel;
-    private JButton myAccountButton, myArticlesButton, myReviewsButton, manageUsersButton, wylogujButton;
+    private MainWindow mainInstance = this;
+    private JPanel MainPanel, SidePanel, Cards, MyAccountPanel, MyReviewsPanel, RedactedArticlesPanel, MyArticlesPanel, ManageArticlesPanel, ManageUsersPanel;
+    private JButton myAccountButton, myArticlesButton, myReviewsButton, redactedArticlesButton, manageUsersButton, manageArticlesButton, wylogujButton;
     private JSeparator Separator;
+    private final CardLayout cards = (CardLayout) (Cards.getLayout());
 
+    //My Account
     private JLabel currLogin, currName, currSurname, currEmail, currPesel, currStreetAddress, currPostCode, currTown;
     private JTextField newLogin, newName, newSurname, newEmail, newPesel, newStreetAddress, newPostCode, newTown;
     private JPasswordField newPassword, newPasswordRepeat, oldPasswordField;
     private JButton changeDataButton;
 
-    private JLabel warningsLabel;
-    private JButton removeAccountButton;
     private JPasswordField confirmDelete;
+    private JButton removeAccountButton;
+    private JLabel warningsLabel;
+
+    //Manage Users
+    private JTable UsersTable;
+    private JTextField UsersSearchField;
+    private JPanel WelcomeScreen;
+    private DefaultTableModel UsersTableModel;
 
     private static final Object[] confirmOptions = {"     Tak     ","     Nie     "};
     private final Logger logger = LogManager.getLogger(MainWindow.class);
 
-    private void CheckDeletion()
+    void updateAvailableCards(int currentcard)
     {
-        ArrayList<ArrayList<String>> articlesAsAuthor = Selector.select("SELECT COUNT(articleID) FROM article where AuthorID = " + CurrentUser.getID() + ";");
-        ArrayList<ArrayList<String>> articlesAsRedactor = Selector.select("SELECT COUNT(articleID) FROM article where RedactorID = " + CurrentUser.getID() + ";");
-        ArrayList<ArrayList<String>> reviews = Selector.select("SELECT COUNT(reviewID) FROM review where ReviewerID = " + CurrentUser.getID() + ";");
-        ArrayList<ArrayList<String>> paths = Selector.select("SELECT COUNT(pathID) FROM path where redactorID = " + CurrentUser.getID() + ";");
-
-        int articlesAsAuthorCount = Integer.parseInt(articlesAsAuthor.get(0).get(0));
-        int articlesAsRedactorCount = Integer.parseInt(articlesAsRedactor.get(0).get(0));
-        int reviewsCount = Integer.parseInt(reviews.get(0).get(0));
-        int pathsCount = Integer.parseInt(paths.get(0).get(0));
-
-        if(articlesAsAuthorCount!=0 || articlesAsRedactorCount!=0 || reviewsCount!=0 || pathsCount!=0)
-        {
-            String Warning = "Do konta przypisanych jest ";
-
-            if(articlesAsAuthorCount!=0 || articlesAsRedactorCount!=0 ) Warning+= (articlesAsAuthorCount + articlesAsRedactorCount) + " artykułów, ";
-            if(reviewsCount!=0)     Warning+= reviewsCount + " recenzji, ";
-            if(pathsCount!=0)       Warning+= pathsCount + " ścieżek, ";
-
-            Warning = Warning.replaceAll(", $", "");
-
-            warningsLabel.setText(Warning);
-            removeAccountButton.setEnabled(false);
-            confirmDelete.setEnabled(false);
-        }
+        myAccountButton.setEnabled(0!=currentcard);
+        myArticlesButton.setEnabled(1!=currentcard && CurrentUser.isAuthor());
+        myReviewsButton.setEnabled(2!=currentcard && CurrentUser.isReviewer());
+        redactedArticlesButton.setEnabled(3!=currentcard && CurrentUser.isRedactor());
+        manageUsersButton.setEnabled(4!=currentcard && CurrentUser.isAdmin());
+        manageArticlesButton.setEnabled(5!=currentcard && CurrentUser.isAdmin());
     }
 
-    private void changeActiveCard(int card, CardLayout cards)     //  0-3 (so far)
+    void changeActiveCard(int card)     //  0-5 (so far)
     {
         myAccountButton.setEnabled(0!=card);
-        myArticlesButton.setEnabled(1!=card);
-        myReviewsButton.setEnabled(2!=card);
-        manageUsersButton.setEnabled(3!=card);
+        myArticlesButton.setEnabled(1!=card && CurrentUser.isAuthor());
+        myReviewsButton.setEnabled(2!=card && CurrentUser.isReviewer());
+        redactedArticlesButton.setEnabled(3!=card && CurrentUser.isRedactor());
+        manageUsersButton.setEnabled(4!=card && CurrentUser.isAdmin());
+        manageArticlesButton.setEnabled(5!=card && CurrentUser.isAdmin());
 
         myAccountButton.setBackground( 0==card ? Color.WHITE : null );
         myArticlesButton.setBackground( 1==card ? Color.WHITE : null );
         myReviewsButton.setBackground( 2==card ? Color.WHITE: null );
-        manageUsersButton.setBackground( 3==card ? Color.WHITE: null );
+        redactedArticlesButton.setBackground( 3==card ? Color.WHITE: null );
+        manageUsersButton.setBackground( 4==card ? Color.WHITE: null );
+        manageArticlesButton.setBackground( 5==card ? Color.WHITE: null );
 
         if(card==0) frame.setTitle("Moje konto");
         if(card==1) frame.setTitle("Moje artykuły");
         if(card==2) frame.setTitle("Moje recenzje");
-        if(card==3) frame.setTitle("Zarządzaj użytkownikami");
+        if(card==3) frame.setTitle("Redagowane artykuły");
+        if(card==4) frame.setTitle("Zarządzaj użytkownikami");
+        if(card==2) frame.setTitle("Moje recenzje");
 
         if(card==0) cards.show(Cards, "MyAccountPanel");
         if(card==1) cards.show(Cards, "MyArticles");
         if(card==2) cards.show(Cards, "MyReviews");
-        if(card==3) cards.show(Cards, "ManageUsers");
+        if(card==3) cards.show(Cards, "RedactedArticles");
+        if(card==4) cards.show(Cards, "ManageUsers");
+        if(card==5) cards.show(Cards, "ManageArticles");
     }
 
     public MainWindow(JFrame parentFrame)
@@ -95,7 +93,7 @@ public class MainWindow
             public void windowClosing(WindowEvent we)
             {
                 if(JOptionPane.showOptionDialog(frame, "Czy chcesz wyjść?", "Potwierdź operację",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
+                   JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
                 {
                     logger.trace("Application closed with exit code 0");
                     System.exit(0);
@@ -103,44 +101,70 @@ public class MainWindow
             }
         });
 
+        Cards.add(WelcomeScreen, "WelcomeScreen");
         Cards.add(MyAccountPanel, "MyAccountPanel");
         Cards.add(MyArticlesPanel, "MyArticles");
         Cards.add(MyReviewsPanel, "MyReviews");
+        Cards.add(RedactedArticlesPanel, "RedactedArticles");
         Cards.add(ManageUsersPanel, "ManageUsers");
-
-        final CardLayout cards = (CardLayout) (Cards.getLayout());
+        Cards.add(ManageArticlesPanel, "ManageArticles");
 
         // initial card
-        cards.show(Cards, "MyAccountPanel");
-        myAccountButton.setEnabled(false);
-        myAccountButton.setBackground(Color.WHITE);
+        cards.show(Cards, "WelcomeScreen");
+        myAccountButton.setEnabled(true);
+        myAccountButton.setEnabled(true);
+        myArticlesButton.setEnabled(CurrentUser.isAuthor());
+        myReviewsButton.setEnabled(CurrentUser.isReviewer());
+        redactedArticlesButton.setEnabled(CurrentUser.isRedactor());
+        manageUsersButton.setEnabled(CurrentUser.isAdmin());
+        manageArticlesButton.setEnabled(CurrentUser.isAdmin());
 
-        myAccountButton.addActionListener(new ActionListener(){
+        myAccountButton.addActionListener(new ActionListener()
+        {
             @Override
             public void actionPerformed(ActionEvent e){
-                changeActiveCard(0, cards);
+                changeActiveCard(0);
             }
         });
 
-        myArticlesButton.addActionListener(new ActionListener(){
+        myArticlesButton.addActionListener(new ActionListener()
+        {
             @Override
             public void actionPerformed(ActionEvent e){
-                changeActiveCard(1, cards);
+                changeActiveCard(1);
             }
         });
 
-        myReviewsButton.addActionListener(new ActionListener(){
+        myReviewsButton.addActionListener(new ActionListener()
+        {
             @Override
             public void actionPerformed(ActionEvent e){
-                changeActiveCard(2, cards);
+                changeActiveCard(2);
             }
         });
 
-        manageUsersButton.addActionListener(new ActionListener(){
+        redactedArticlesButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                changeActiveCard(3);
+            }
+        });
+
+        manageUsersButton.addActionListener(new ActionListener()
+        {
             @Override
             public void actionPerformed(ActionEvent e){
-                changeActiveCard(3, cards);
-                System.out.println(frame.toString());
+                changeActiveCard(4);
+            }
+        });
+
+        manageArticlesButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                changeActiveCard(5);
             }
         });
 
@@ -150,7 +174,7 @@ public class MainWindow
             public void actionPerformed(ActionEvent e)
             {
                 if(JOptionPane.showOptionDialog(frame, "Czy chcesz się wylogować?", "Potwierdź operację",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
+                   JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
                 {
                     logger.trace(CurrentUser.getLogin() + " logged out");
                     CurrentUser.setValues(null);
@@ -164,32 +188,9 @@ public class MainWindow
 
         MyAccountPanel myAccountPanel = new MyAccountPanel(frame, currLogin, currName, currSurname, currEmail, currPesel, currStreetAddress, currPostCode, currTown,
                 newLogin, newName, newSurname, newEmail, newPesel, newStreetAddress, newPostCode,
-                newTown, newPassword, newPasswordRepeat, oldPasswordField, changeDataButton, confirmDelete);
-
-        CheckDeletion();
-        currLogin.setText(CurrentUser.getLogin());
-        currName.setText(CurrentUser.getName());
-        currSurname.setText(CurrentUser.getSurname());
-        currEmail.setText(CurrentUser.getEmail());
-        if(CurrentUser.getPesel()!=null)        currPesel.setText(CurrentUser.getPesel());
-        if(CurrentUser.getStreetAdress()!=null) currStreetAddress.setText(CurrentUser.getStreetAdress());
-        if(CurrentUser.getPostCode()!=null)     currPostCode.setText(CurrentUser.getPostCode());
-        if(CurrentUser.getTown()!=null)         currTown.setText(CurrentUser.getTown());
-
-        if(CurrentUser.getLogin().equals("admin"))
-        {
-            newLogin.setEnabled(false);
-            newLogin.setToolTipText("Login dla tego konta nie może zostać zmieniony");
-            removeAccountButton.setEnabled(false);
-            confirmDelete.setEnabled(false);
-            warningsLabel.setText("Konto \"admin\" nie może zostać usunięte!");
-        }
-        else    newLogin.setToolTipText("Login musi składać się z cyfr oraz małych i wielkich liter i mieć 8-25 znaków.");
-
-        newPassword.setToolTipText("Hasło musi zawierać co najmniej jedną cyfrę, jedną wielką i jedną małą literę i mieć 8-25 znaków.");
-        newPasswordRepeat.setToolTipText("Wpisz hasło identyczne z tym w polu \"Hasło\"");
-        newPostCode.setToolTipText("dd-ddd gdzie \"d\" oznacza cyfrę");
-
+                newTown, newPassword, newPasswordRepeat, oldPasswordField, changeDataButton,
+                confirmDelete, removeAccountButton, warningsLabel);
+        
         newLogin.addKeyListener(myAccountPanel.newLoginListener);
         newName.addKeyListener(myAccountPanel.newNameListener);
         newSurname.addKeyListener(myAccountPanel.newSurnameListener);
@@ -203,7 +204,7 @@ public class MainWindow
         changeDataButton.addActionListener(myAccountPanel.changeDataButtonListener);
         removeAccountButton.addActionListener(myAccountPanel.removeAccountButtonListener);
 
-        // MOJE ARTYKUŁY - przesłane i redagowane
+        // MOJE ARTYKUŁY - przesłane
 
             //TODO
 
@@ -211,8 +212,28 @@ public class MainWindow
 
             // TODO
 
-        // ZARZĄDZANIE UŻYKOWNIKAMI
+        // REDAGOWANIE ARTYKUŁY
 
             // TODO
+
+        // ZARZĄDZANIE UŻYKOWNIKAMI
+        ManageUsersPanel manageUsersPanel = new ManageUsersPanel(UsersTable, UsersSearchField, UsersTableModel, frame, mainInstance);
+        manageUsersPanel.UpdateUsersTable();
+        UsersSearchField.addKeyListener(manageUsersPanel.UsersSearchFieldListener);
+        UsersTable.addMouseListener(manageUsersPanel.UsersTableListener);
+
+        // ZARZĄDZANIE ARTYKUŁAMI
+
+            // TODO
+    }
+
+    private void createUIComponents()
+    {
+        UsersTable = new JTable();
+        String[] UsersTableColumns = {"Nazwa użytkownika", "Autor", "Recenzent", "Redaktor", "Administrator"};
+        UsersTable.setModel(new DefaultTableModel(UsersTableColumns,0));
+        UsersTableModel = (DefaultTableModel) UsersTable.getModel();
+        UsersTable.setDefaultEditor(Object.class, null);
+        UsersTable.setAutoCreateRowSorter(true);
     }
 }
