@@ -26,7 +26,10 @@ class MyAccountPanel
     private JTextField newLogin, newName, newSurname, newEmail, newPesel, newStreetAddress, newPostCode, newTown;
     private JPasswordField newPassword, newPasswordRepeat, oldPasswordField;
     private JButton changeDataButton;
+
     private JPasswordField confirmDelete;
+    private JButton removeAccountButton;
+    private JLabel warningsLabel;
 
     private MessageDigest digest;
 
@@ -38,8 +41,9 @@ class MyAccountPanel
     private static final Object[] confirmOptions = {"     Tak     ","     Nie     "};
 
     MyAccountPanel(JFrame frame, JLabel currLogin, JLabel currName, JLabel currSurname, JLabel currEmail, JLabel currPesel, JLabel currStreetAddress, JLabel currPostCode, JLabel currTown,
-                          JTextField newLogin, JTextField newName, JTextField newSurname, JTextField newEmail, JTextField newPesel, JTextField newStreetAddress, JTextField newPostCode,
-                          JTextField newTown, JPasswordField newPassword, JPasswordField newPasswordRepeat, JPasswordField oldPasswordField, JButton changeDataButton, JPasswordField confirmDelete)
+                   JTextField newLogin, JTextField newName, JTextField newSurname, JTextField newEmail, JTextField newPesel, JTextField newStreetAddress, JTextField newPostCode, JTextField newTown,
+                   JPasswordField newPassword, JPasswordField newPasswordRepeat, JPasswordField oldPasswordField, JButton changeDataButton,
+                   JPasswordField confirmDelete, JButton removeAccountButton, JLabel warningsLabel)
     {
         try
         {
@@ -72,7 +76,10 @@ class MyAccountPanel
         this.newPasswordRepeat = newPasswordRepeat;
         this.oldPasswordField = oldPasswordField;
         this.changeDataButton = changeDataButton;
+
         this.confirmDelete = confirmDelete;
+        this.removeAccountButton = removeAccountButton;
+        this.warningsLabel = warningsLabel;
 
         this.newLoginListener = new RegexKeyListener(RegexContainer.loginRegEx, newLogin);
         this.newNameListener = new RegexKeyListener(RegexContainer.nameRegEx, newName);
@@ -82,14 +89,68 @@ class MyAccountPanel
         this.newStreetAddressListener = new RegexKeyListener(RegexContainer.streetAdressRegEx, newStreetAddress);
         this.newPostCodeListener = new RegexKeyListener(RegexContainer.postCodeRegEx, newPostCode);
         this.newTownListener = new RegexKeyListener(RegexContainer.townRegEx, newTown);
+
+        CheckDeletion();
+        currLogin.setText(CurrentUser.getLogin());
+        currName.setText(CurrentUser.getName());
+        currSurname.setText(CurrentUser.getSurname());
+        currEmail.setText(CurrentUser.getEmail());
+        if(CurrentUser.getPesel()!=null)        currPesel.setText(CurrentUser.getPesel());
+        if(CurrentUser.getStreetAdress()!=null) currStreetAddress.setText(CurrentUser.getStreetAdress());
+        if(CurrentUser.getPostCode()!=null)     currPostCode.setText(CurrentUser.getPostCode());
+        if(CurrentUser.getTown()!=null)         currTown.setText(CurrentUser.getTown());
+
+        if(CurrentUser.getLogin().equals("admin"))
+        {
+            newLogin.setEnabled(false);
+            newLogin.setToolTipText("Login dla tego konta nie może zostać zmieniony");
+            removeAccountButton.setEnabled(false);
+            confirmDelete.setEnabled(false);
+            warningsLabel.setText("Konto \"admin\" nie może zostać usunięte!");
+        }
+        else    newLogin.setToolTipText("Login musi składać się z cyfr oraz małych i wielkich liter i mieć 8-25 znaków.");
+
+        newPassword.setToolTipText("Hasło musi zawierać co najmniej jedną cyfrę, jedną wielką i jedną małą literę i mieć 8-25 znaków.");
+        newPasswordRepeat.setToolTipText("Wpisz hasło identyczne z tym w polu \"Hasło\"");
+        newPostCode.setToolTipText("dd-ddd gdzie \"d\" oznacza cyfrę");
+    }
+
+    private void CheckDeletion()
+    {
+        ArrayList<ArrayList<String>> articlesAsAuthor = Selector.select("SELECT COUNT(articleID) FROM article where AuthorID = " + CurrentUser.getID() + ";");
+        ArrayList<ArrayList<String>> articlesAsRedactor = Selector.select("SELECT COUNT(articleID) FROM article where RedactorID = " + CurrentUser.getID() + ";");
+        ArrayList<ArrayList<String>> reviews = Selector.select("SELECT COUNT(reviewID) FROM review where ReviewerID = " + CurrentUser.getID() + ";");
+        ArrayList<ArrayList<String>> paths = Selector.select("SELECT COUNT(pathID) FROM path where redactorID = " + CurrentUser.getID() + ";");
+
+        int articlesAsAuthorCount = Integer.parseInt(articlesAsAuthor.get(0).get(0));
+        int articlesAsRedactorCount = Integer.parseInt(articlesAsRedactor.get(0).get(0));
+        int reviewsCount = Integer.parseInt(reviews.get(0).get(0));
+        int pathsCount = Integer.parseInt(paths.get(0).get(0));
+
+        String warning = "";
+        if(articlesAsAuthorCount!=0)    warning += "Do konta jest przypisanych " + articlesAsAuthorCount + " artykułów jako autor\n";
+        if(articlesAsRedactorCount!=0)  warning += "Do konta jest przypisanych " + articlesAsRedactorCount + " artykułów jako redaktor\n";
+        if(reviewsCount!=0)             warning += "Do konta jest przypisanych " + reviewsCount + " recenzji\n";
+        if(pathsCount!=0)               warning += "Do konta jest przypisanych " + pathsCount + " ścieżek\n";
+
+        if(!warning.equals(""))
+        {
+            // make text multi line using html
+            warning = warning.replaceAll("\n", "<br>");
+            warning = "<html>" + warning + "</html>";
+
+            warningsLabel.setText(warning);
+            removeAccountButton.setEnabled(false);
+            confirmDelete.setEnabled(false);
+        }
     }
 
     private void CheckEnableChangeData()
     {
         if(newLogin.getText().isEmpty() && newName.getText().isEmpty() && newSurname.getText().isEmpty()
-                && newEmail.getText().isEmpty() && newPesel.getText().isEmpty() && newStreetAddress.getText().isEmpty()
-                && newPostCode.getText().isEmpty() && newTown.getText().isEmpty() && String.valueOf(newPassword.getPassword()).isEmpty()
-                && String.valueOf(newPasswordRepeat.getPassword()).isEmpty())
+           && newEmail.getText().isEmpty() && newPesel.getText().isEmpty() && newStreetAddress.getText().isEmpty()
+           && newPostCode.getText().isEmpty() && newTown.getText().isEmpty() && String.valueOf(newPassword.getPassword()).isEmpty()
+           && String.valueOf(newPasswordRepeat.getPassword()).isEmpty())
         {
             oldPasswordField.setEnabled(false);
             oldPasswordField.setText("");
@@ -427,12 +488,12 @@ class MyAccountPanel
             else
             {
                 if(JOptionPane.showOptionDialog(frame, "Usunąć konto? Tej operacji NIE MOŻNA COFNĄĆ!", "Potwierdź operację",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
+                   JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, confirmOptions, confirmOptions[1])==JOptionPane.YES_OPTION)
                 {
                     logger.trace("User " + CurrentUser.getLogin() + " removed account");
                     QueryHandler.execute("DELETE FROM sysuser where userID='"+ CurrentUser.getID() +"';");
-                    CurrentUser.setValues(null);
 
+                    CurrentUser.setValues(null);
                     new LoginForm(frame);
                     frame.dispose();
                     JOptionPane.showMessageDialog(frame, "Twoje konto zostało usunięte.", "Operacja przebiegła pomyślnie", JOptionPane.PLAIN_MESSAGE);

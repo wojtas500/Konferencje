@@ -58,6 +58,27 @@ public class CurrentUser
         return Values.get(9);
     }
 
+    public static Boolean isAuthor()
+    {
+        return (Values.get(10).equals("1")) ? true : false;
+    }
+
+    public static Boolean isReviewer()
+    {
+        return (Values.get(11).equals("1")) ? true : false;
+    }
+
+    public static Boolean isRedactor()
+    {
+        return (Values.get(12).equals("1")) ? true : false;
+    }
+
+    public static Boolean isAdmin()
+    {
+        return (Values.get(13).equals("1")) ? true : false;
+    }
+
+
     public static ArrayList<String> getValues()
     {
         return Values;
