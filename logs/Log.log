@@ -1,0 +1,117 @@
+[ERROR] 2019-05-27 15:04:08.096 LoginForm - Couldn't get connection to database
+[TRACE] 2019-05-27 15:04:08.096 LoginForm - Application closed with exit code 1
+[ERROR] 2019-05-27 16:21:27.483 LoginForm - Couldn't get connection to database
+[TRACE] 2019-05-27 16:21:27.530 LoginForm - Application closed with exit code 1
+[TRACE] 2019-05-27 16:22:04.905 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-05-27 16:22:04.905 LoginForm - Connected to Database
+[TRACE] 2019-05-27 16:22:14.436 LoginForm - Application closed with exit code 0
+[TRACE] 2019-05-27 16:29:18.979 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-05-27 16:29:18.979 LoginForm - Connected to Database
+[TRACE] 2019-05-27 16:30:29.193 LoginForm - Application closed with exit code 0
+[TRACE] 2019-05-27 16:42:04.150 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-05-27 16:42:04.150 LoginForm - Connected to Database
+[TRACE] 2019-05-27 16:42:17.181 LoginForm - User admin logged
+[TRACE] 2019-05-27 17:57:32.070 MainWindow - Application closed with exit code 0
+[TRACE] 2019-05-29 05:51:46.709 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-05-29 05:51:46.745 LoginForm - Connected to Database
+[WARN ] 2019-05-29 05:57:58.927 LoginForm - Incorrect password provided when attempting to login as: admin
+[TRACE] 2019-05-29 06:36:40.032 LoginForm - User admin logged
+[TRACE] 2019-05-29 06:43:36.338 MainWindow - admin logged out
+[TRACE] 2019-05-29 06:43:36.455 LoginForm - Connected to Database
+[TRACE] 2019-05-29 07:06:07.887 LoginForm - Created new user Uzytkownik
+[TRACE] 2019-05-29 07:11:14.598 LoginForm - Application closed with exit code 0
+[TRACE] 2019-06-05 14:59:20.288 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-05 14:59:20.319 LoginForm - Connected to Database
+[TRACE] 2019-06-05 14:59:39.677 LoginForm - User admin logged
+[TRACE] 2019-06-05 14:59:54.926 UserDetails - Admin admin changed admin functions to: (author, admin)
+[TRACE] 2019-06-05 15:12:44.326 MainWindow - admin logged out
+[TRACE] 2019-06-05 15:12:44.451 LoginForm - Connected to Database
+[TRACE] 2019-06-05 15:14:05.807 LoginForm - User admin logged
+[TRACE] 2019-06-05 15:14:57.233 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-05 15:15:14.830 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-05 15:15:14.845 LoginForm - Connected to Database
+[TRACE] 2019-06-05 15:15:24.798 LoginForm - User admin logged
+[TRACE] 2019-06-05 15:17:23.653 UserDetails - Admin admin changed autor2 functions to: (reviewer, redactor)
+[TRACE] 2019-06-05 15:17:33.294 UserDetails - Admin admin changed autor2 functions to: (author)
+[TRACE] 2019-06-05 15:17:46.578 UserDetails - Admin admin changed admin functions to: (reviewer, redactor, admin)
+[TRACE] 2019-06-05 15:17:59.727 UserDetails - Admin admin changed admin functions to: (admin)
+[TRACE] 2019-06-05 15:18:27.432 MainWindow - admin logged out
+[TRACE] 2019-06-05 15:18:27.541 LoginForm - Connected to Database
+[TRACE] 2019-06-05 15:18:31.130 LoginForm - Application closed with exit code 0
+[TRACE] 2019-06-06 16:12:34.916 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 16:12:34.932 LoginForm - Connected to Database
+[WARN ] 2019-06-06 16:12:51.114 LoginForm - Incorrect email provided when attempting to login: admin
+[WARN ] 2019-06-06 16:13:10.575 LoginForm - Incorrect email provided when attempting to login: admin
+[TRACE] 2019-06-06 16:13:13.214 LoginForm - Application closed with exit code 0
+[TRACE] 2019-06-06 16:34:31.351 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 16:34:31.365 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:34:43.486 LoginForm - User admin logged
+[TRACE] 2019-06-06 16:35:12.545 MainWindow - admin logged out
+[TRACE] 2019-06-06 16:35:12.664 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:35:14.871 LoginForm - Application closed with exit code 0
+[TRACE] 2019-06-06 16:36:15.672 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 16:36:15.677 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:36:30.242 LoginForm - User admin logged
+[TRACE] 2019-06-06 16:36:53.626 MainWindow - admin logged out
+[TRACE] 2019-06-06 16:36:53.754 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:37:04.263 LoginForm - Application closed with exit code 0
+[TRACE] 2019-06-06 16:37:18.880 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 16:37:18.887 LoginForm - Connected to Database
+[WARN ] 2019-06-06 16:37:36.140 LoginForm - Incorrect password provided when attempting to login as: autor1
+[WARN ] 2019-06-06 16:37:44.243 LoginForm - Incorrect password provided when attempting to login as: autor1
+[WARN ] 2019-06-06 16:37:56.350 LoginForm - Incorrect password provided when attempting to login as: autor1
+[TRACE] 2019-06-06 16:39:09.685 LoginForm - User autor1 logged
+[TRACE] 2019-06-06 16:39:14.997 MainWindow - autor1 logged out
+[TRACE] 2019-06-06 16:39:15.112 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:39:19.263 LoginForm - Application closed with exit code 0
+[TRACE] 2019-06-06 16:41:12.625 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 16:41:12.630 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:41:25.881 LoginForm - User admin logged
+[TRACE] 2019-06-06 16:41:39.558 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-06 16:45:09.975 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 16:45:09.980 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:45:18.582 LoginForm - User admin logged
+[TRACE] 2019-06-06 16:45:27.763 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-06 16:47:20.684 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 16:47:20.690 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:47:38.843 LoginForm - User admin logged
+[TRACE] 2019-06-06 16:47:55.878 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-06 16:50:44.892 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 16:50:44.900 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:50:51.540 LoginForm - User admin logged
+[TRACE] 2019-06-06 16:52:57.359 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-06 16:53:54.326 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 16:53:54.330 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:53:55.629 LoginForm - Application closed with exit code 0
+[TRACE] 2019-06-06 16:54:23.240 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 16:54:23.245 LoginForm - Connected to Database
+[TRACE] 2019-06-06 16:54:30.956 LoginForm - User admin logged
+[TRACE] 2019-06-06 16:56:12.094 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-06 17:08:30.531 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 17:08:30.548 LoginForm - Connected to Database
+[TRACE] 2019-06-06 17:08:38.169 LoginForm - User admin logged
+[TRACE] 2019-06-06 17:08:49.327 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-06 17:14:38.078 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 17:14:38.081 LoginForm - Connected to Database
+[TRACE] 2019-06-06 17:14:47.733 LoginForm - User admin logged
+[TRACE] 2019-06-06 17:14:52.069 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-06 17:17:55.441 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-06 17:17:55.446 LoginForm - Connected to Database
+[TRACE] 2019-06-06 17:18:10.769 LoginForm - User admin logged
+[TRACE] 2019-06-06 17:18:11.308 LoginForm - User admin logged
+[TRACE] 2019-06-06 17:18:19.828 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-07 10:33:02.009 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-07 10:33:02.024 LoginForm - Connected to Database
+[TRACE] 2019-06-07 10:33:34.115 LoginForm - User admin logged
+[TRACE] 2019-06-07 10:33:58.447 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-07 15:45:58.767 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-07 15:45:58.800 LoginForm - Connected to Database
+[TRACE] 2019-06-07 15:46:11.081 LoginForm - User admin logged
+[TRACE] 2019-06-07 15:46:25.490 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-07 15:48:03.971 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-07 15:48:03.976 LoginForm - Connected to Database
+[TRACE] 2019-06-07 15:48:13.665 LoginForm - User admin logged
+[TRACE] 2019-06-07 15:48:32.459 MainWindow - Application closed with exit code 0
+[TRACE] 2019-06-07 15:49:13.755 DBConnection - Connection parameters loaded properly
+[TRACE] 2019-06-07 15:49:13.759 LoginForm - Connected to Database
+[TRACE] 2019-06-07 15:49:19.214 LoginForm - Application closed with exit code 0
